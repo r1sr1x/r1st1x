@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Unbounded', sans-serif;
+      background-color: #ae5656;
+      color: #FFFFFF;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .background {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://i.pinimg.com/originals/eb/28/81/eb288176775146633e194c532adcdc54.gif');
+      background-size: cover;
+      background-position: center;
+      opacity: 1;
+      z-index: -1;
+    }
+    
+    .sakura-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+    
+    .sakura-petal {
+      position: absolute;
+      pointer-events: none;
+      animation-timing-function: ease-in-out;
+      opacity: 0.8;
+      z-index: 100;
+    }
+    
+    @keyframes fall {
+      0% {
+        transform: translate(0, -10%) rotate(0deg);
+      }
+      100% {
+        transform: translate(var(--sway), 100vh) rotate(360deg);
+      }
+    }
+    
+    .container {
+      display: table;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .content {
+      display: table-cell;
+      vertical-align: middle;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .box-wrapper {
+      perspective: 1000px;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .box {
+      max-width: 750px;
+      margin: 0 auto;
+      background: rgba(20, 20, 23, 0.5);
+      backdrop-filter: blur(40px);
+      border-radius: 10px;
+      border: 1px solid rgba(120, 114, 109, 0.2);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
+    }
+    
+    .banner {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      opacity: 1;
+      filter: blur(100px);
+    }
+    
+    .avatar-container {
+      margin-top: -56px;
+      position: relative;
+    }
+    
+    .avatar {
+      width: 112px;
+      height: 112px;
+      border-radius: 50px;
+      border: 1px solid rgba(120, 114, 109, 0.2);
+      object-fit: cover;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 128, 193, 0.5);
+    }
+
+    .avatar:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #ff80c1, 0 0 30px rgba(255, 128, 193, 0.8);
+    }
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 10px 0;
+      text-shadow: 
+        0 0 5px #ff80c1,
+        0 0 10px #ff80c1,
+        0 0 20px #ff80c1,
+        0 0 40px #ff0099;
+      animation: neonGlow 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes neonGlow {
+      from {
+        text-shadow: 
+          0 0 5px #ff80c1,
+          0 0 10px #ff80c1,
+          0 0 20px #ff80c1,
+          0 0 40px #ff0099;
+      }
+      to {
+        text-shadow: 
+          0 0 10px #ff80c1,
+          0 0 20px #ff80c1,
+          0 0 30px #ff80c1,
+          0 0 50px #ff0099;
+      }
+    }
+    
+    .tag {
+      display: inline-block;
+      border: 1px solid #f080c1;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 14px;
+      color: #f080c1;
+      margin: 0 4px;
+      text-shadow: 
+        0 0 3px #ff80c1,
+        0 0 6px #ff80c1,
+        0 0 9px #ff0099;
+      animation: neonPulse 2s ease infinite;
+    }
+
+    @keyframes neonPulse {
+      0%, 100% {
+        text-shadow: 
+          0 0 3px #ff80c1,
+          0 0 6px #ff80c1,
+          0 0 9px #ff0099;
+        box-shadow: 
+          0 0 3px #ff80c1,
+          0 0 6px #ff80c1 inset;
+      }
+      50% {
+        text-shadow: 
+          0 0 5px #ff80c1,
+          0 0 10px #ff80c1,
+          0 0 15px #ff0099;
+        box-shadow: 
+          0 0 5px #ff80c1,
+          0 0 10px #ff80c1 inset;
+      }
+    }
+    
+    .description {
+      color: #ffffff;
+      margin: 20px 0;
+      word-break: break-word;
+      text-shadow: 
+        0 0 2px #fff,
+        0 0 5px #ff80c1;
+    }
+    
+    .highlight {
+      color: #ffffff;
+    }
+    
+    .location {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #ffffff;
+      font-size: 14px;
+    }
+    
+    .location svg {
+      fill: #f080c1;
+    }
+
+    /* Оновлений Steam Widget у стилі плеєра */
+    .steam-widget {
+      background: rgba(20, 20, 23, 0.5);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 128, 193, 0.2);
+    }
+
+    .steam-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .steam-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 128, 193, 0.5);
+    }
+
+    .steam-info {
+      flex: 1;
+    }
+
+    .steam-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 5px rgba(255, 128, 193, 0.5);
+      margin-bottom: 5px;
+    }
+
+    .steam-button {
+      display: block;
+      text-align: center;
+      background: rgba(42, 71, 94, 0.8);
+      color: white;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      border: linear-gradient(45deg, rgba(27, 40, 56, 0.8), rgba(42, 71, 94, 0.8));
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .steam-button:hover {
+      background: rgba(20, 20, 23, 0.9);
+      box-shadow: 0 0 10px rgba(255, 128, 193, 0.3);
+    }
+    
+    .music-player-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px;
+      background: rgba(20, 20, 23, 0.5);
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .track-cover {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      border: 1px solid rgba(120, 114, 109, 0.2);
+    }
+    
+    .track-info {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .track-name {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .progress-container {
+      position: relative;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #ff80c1;
+      width: 0%;
+      box-shadow: 0 0 3px #ff80c1;
+      border-radius: 2px;
+    }
+    
+    .time {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #ffffff;
+    }
+    
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    
+    .play-button, .skip-button {
+      background: rgba(255, 128, 193, 0.1);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .play-button:hover, .skip-button:hover {
+      background: rgba(255, 128, 193, 0.2);
+      box-shadow: 0 0 10px rgba(255, 128, 193, 0.5);
+    }
+
+    .play-button svg, .skip-button svg {
+      fill: #f080c1;
+      width: 18px;
+      height: 18px;
+      filter: drop-shadow(0 0 2px #ff80c1);
+      transition: all 0.3s ease;
+    }
+
+    .play-button:hover svg, .skip-button:hover svg {
+      filter: drop-shadow(0 0 4px #ff80c1);
+    }
+    
+    .volume {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .volume svg {
+      fill: #f080c1;
+      width: 16px;
+      height: 16px;
+      filter: drop-shadow(0 0 2px #ff80c1);
+    }
+    
+    .volume-container {
+      position: relative;
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    
+    .volume-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #ff80c1;
+      width: 70%;
+      box-shadow: 0 0 2px #ff80c1;
+      border-radius: 2px;
+    }
+    
+    .footer {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: rgba(20, 20, 23, 0.5);
+      backdrop-filter: blur(40px);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .footer svg {
+      fill: #f080c1;
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  
+  <div class="sakura-container" id="sakura-container"></div>
+  
+  <div class="container">
+    <div class="content">
+      <div class="box-wrapper">
+        <div class="box" id="main-box">
+          <img src="https://img.freepik.com/premium-photo/simple-abstract-light-pink-gradient-banner-background_8087-1967.jpg" class="banner" alt="Banner">
+          
+          <div class="avatar-container">
+            <img src="https://cdn.pfps.gg/pfps/4153-rias-aesthetic.png" class="avatar" alt="Avatar">
+          </div>
+          
+          <div style="padding: 20px;">
+            <h1>r1st1x</h1>
+            
+            <div>
+              <span class="tag">CEO</span>
+              <span class="tag">founder</span>
+            </div>
+            
+            <div class="description">
+              :| <span class="highlight">
+(かたなをきわめるには、まずかんじょうをせいせよ)</span>
+            </div>
+            
+            <div class="location">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24" width="20" height="20">
+                <rect width="36" height="24" fill="#fff"/>
+                <circle cx="18" cy="12" r="6" fill="#bc002d"/>
+              </svg>
+              <span>Japan</span>
+            </div>
+
+            <!-- Оновлений Steam Widget у стилі плеєра -->
+            <div class="steam-widget">
+              <div class="steam-profile">
+                <img src="https://avatars.akamai.steamstatic.com/16f535939dc97ecf8e285f37c67b7ba04bd9c6e1.jpg" 
+                     class="steam-avatar" 
+                     alt="Steam Avatar">
+                <div class="steam-info">
+                  <div class="steam-name">mode:Spongebob</div>
+                  <a href="https://steamcommunity.com/profiles/76561199001155929/" 
+                     class="steam-button" 
+                     target="_blank">
+                    View Profile
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="music-player-section">
+              <div class="player">
+                <img src="https://i1.sndcdn.com/artworks-ziaeDCzQQf4Y-0-t500x500.jpg" class="track-cover" alt="Track cover">
+                
+                <div class="track-info">
+                  <div class="track-name">Three Days Grace "Animal I Have Become"</div>
+                  
+                  <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                  </div>
+                  
+                  <div class="time">
+                    <span id="current-time">00:00</span>
+                    <span id="duration">02:33</span>
+                  </div>
+                  
+                  <div class="controls">
+                    <button class="skip-button" id="prev-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M18 7v10m-4-10v10l-7-5z"></path>
+                      </svg>
+                    </button>
+                    
+                    <button class="play-button" id="play-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" id="play-icon">
+                        <path d="M21.4 9.4a3 3 0 0 1 0 5.2l-12.8 7C6.6 22.7 4 21.3 4 19V5c0-2.3 2.5-3.7 4.6-2.6z" id="play-path"></path>
+                      </svg>
+                    </button>
+                    
+                    <button class="skip-button" id="next-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M6 7v10l7-5zm4 0v10h2V7z"></path>
+                      </svg>
+                    </button>
+                    
+                    <div class="volume">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" id="volume-icon">
+                        <path fill="currentColor" d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.84-5 6.7v2.07c4-.91 7-4.49 7-8.77s-3-7.86-7-8.77M16.5 12c0-1.77-1-3.29-2.5-4.03V16c1.5-.71 2.5-2.24 2.5-4M3 9v6h4l5 5V4L7 9H3z"></path>
+                      </svg>
+                      
+                      <div class="volume-container" id="volume-container">
+                        <div class="volume-bar" id="volume-bar"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+      <path d="M18 1l-6 4-6-4-6 5v7l12 10 12-10v-7z"></path>
+    </svg>
+    <span>Made by R1ST1X</span>
+  </div>
+
+  <audio id="audio-player"></audio>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Анімація заголовка сторінки
+      const pageTitle = "r1st1x";
+      document.title = ""; // Очищаємо заголовок відразу
+      
+      let currentIndex = 0;
+      let isAdding = true;
+      let titleInterval;
+
+      function animateTitle() {
+        if (isAdding) {
+          document.title = pageTitle.substring(0, currentIndex + 1);
+          currentIndex++;
+          if (currentIndex === pageTitle.length) {
+            isAdding = false;
+            clearInterval(titleInterval);
+            titleInterval = setInterval(animateTitle, 300);
+          }
+        } else {
+          document.title = pageTitle.substring(0, currentIndex - 1);
+          currentIndex--;
+          if (currentIndex === 0) {
+            isAdding = true;
+            clearInterval(titleInterval);
+            titleInterval = setInterval(animateTitle, 300);
+          }
+        }
+      }
+
+      // Запускаємо анімацію відразу
+      titleInterval = setInterval(animateTitle, 300);
+
+      // Player elements
+      const audioPlayer = document.getElementById('audio-player');
+      const playBtn = document.getElementById('play-btn');
+      const playIcon = document.getElementById('play-icon');
+      const playPath = document.getElementById('play-path');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const progressContainer = document.getElementById('progress-container');
+      const progressBar = document.getElementById('progress-bar');
+      const currentTimeEl = document.getElementById('current-time');
+      const durationEl = document.getElementById('duration');
+      const volumeContainer = document.getElementById('volume-container');
+      const volumeBar = document.getElementById('volume-bar');
+      const volumeIcon = document.getElementById('volume-icon');
+      const trackName = document.querySelector('.track-name');
+      const trackCover = document.querySelector('.track-cover');
+
+      // Playlist
+      const playlist = [
+        {
+          title: 'Three Days Grace "Animal I Have Become"',
+          cover: 'https://i1.sndcdn.com/artworks-ziaeDCzQQf4Y-0-t500x500.jpg',
+          file: 'https://github.com/r1sr1x/my_music/raw/main/Three_Days_Grace_-_Animal_I_Have_Become_.mp3',
+          duration: '03:51'
+        },
+        {
+          title: 'Linkin Park "What I`ve Done"',
+          cover: 'https://www.associazioneoutsider.it/wp-content/uploads/2021/05/copertina-linkin-park-1.jpg',
+          file: 'https://github.com/r1sr1x/my_music/raw/main/linkin-park-what-i-ve-done.mp3',
+          duration: '03:28'
+        },
+        {
+          title: 'Kiss "I Was Made for Lovin`You"',
+          cover: 'https://i.scdn.co/image/ab67616d0000b2734384b6976cadaec272114022',
+          file: 'https://github.com/r1sr1x/my_music/raw/main/Kiss%20-%20I%20Was%20Made%20For%20Lovin%20You.mp3',
+          duration: '04:31'
+        }
+      ];
+
+      let currentTrack = 0;
+      let isPlaying = false;
+      let isVolumeDragging = false;
+      let isProgressDragging = false;
+
+      // Initialize player
+      function loadTrack(trackIndex) {
+        const track = playlist[trackIndex];
+        audioPlayer.src = track.file;
+        trackName.textContent = track.title;
+        trackCover.src = track.cover;
+        durationEl.textContent = track.duration;
+        
+        audioPlayer.addEventListener('loadedmetadata', function() {
+          if (!isNaN(audioPlayer.duration)) {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+          }
+        });
+      }
+
+      // Play/pause toggle
+      function togglePlay() {
+        if (isPlaying) {
+          pauseTrack();
+        } else {
+          playTrack();
+        }
+      }
+
+      function playTrack() {
+        audioPlayer.play();
+        isPlaying = true;
+        playPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+      }
+
+      function pauseTrack() {
+        audioPlayer.pause();
+        isPlaying = false;
+        playPath.setAttribute('d', 'M21.4 9.4a3 3 0 0 1 0 5.2l-12.8 7C6.6 22.7 4 21.3 4 19V5c0-2.3 2.5-3.7 4.6-2.6z');
+      }
+
+      // Next track
+      function nextTrack() {
+        currentTrack = (currentTrack + 1) % playlist.length;
+        loadTrack(currentTrack);
+        if (isPlaying) {
+          playTrack();
+        }
+      }
+
+      // Previous track
+      function prevTrack() {
+        currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+        loadTrack(currentTrack);
+        if (isPlaying) {
+          playTrack();
+        }
+      }
+
+      // Update progress bar
+      function updateProgress() {
+        const { currentTime, duration } = audioPlayer;
+        const progressPercent = (currentTime / duration) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+        currentTimeEl.textContent = formatTime(currentTime);
+      }
+
+      // Set progress
+      function setProgress(e) {
+        const width = this.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audioPlayer.duration;
+        audioPlayer.currentTime = (clickX / width) * duration;
+      }
+
+      // Format time
+      function formatTime(seconds) {
+        if (isNaN(seconds)) return '00:00';
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+
+      // Set volume
+      function setVolume(e) {
+        const width = this.clientWidth;
+        const clickX = Math.min(Math.max(e.offsetX, 0), width);
+        const volume = clickX / width;
+        audioPlayer.volume = volume;
+        volumeBar.style.width = `${volume * 100}%`;
+        updateVolumeIcon(volume);
+      }
+
+      // Update volume icon based on volume level
+      function updateVolumeIcon(volume) {
+        if (volume === 0) {
+          volumeIcon.setAttribute('d', 'M16.5 12c0-1.77-1-3.29-2.5-4.03v1.55l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+        } else if (volume < 0.5) {
+          volumeIcon.setAttribute('d', 'M7 9v6h4l5 5V4l-5 5H7z');
+        } else {
+          volumeIcon.setAttribute('d', 'M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.84-5 6.7v2.07c4-.91 7-4.49 7-8.77s-3-7.86-7-8.77M16.5 12c0-1.77-1-3.29-2.5-4.03V16c1.5-.71 2.5-2.24 2.5-4M3 9v6h4l5 5V4L7 9H3z');
+        }
+      }
+
+      // Toggle mute
+      function toggleMute() {
+        audioPlayer.muted = !audioPlayer.muted;
+        if (audioPlayer.muted) {
+          volumeIcon.setAttribute('d', 'M16.5 12c0-1.77-1-3.29-2.5-4.03v1.55l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+          volumeBar.style.width = '0%';
+        } else {
+          updateVolumeIcon(audioPlayer.volume);
+          volumeBar.style.width = `${audioPlayer.volume * 100}%`;
+        }
+      }
+
+      // Event listeners
+      playBtn.addEventListener('click', togglePlay);
+      nextBtn.addEventListener('click', nextTrack);
+      prevBtn.addEventListener('click', prevTrack);
+      audioPlayer.addEventListener('timeupdate', updateProgress);
+      audioPlayer.addEventListener('ended', nextTrack);
+      audioPlayer.addEventListener('loadedmetadata', updateProgress);
+
+      progressContainer.addEventListener('mousedown', (e) => {
+        isProgressDragging = true;
+        setProgress(e);
+      });
+      
+      volumeContainer.addEventListener('mousedown', (e) => {
+        isVolumeDragging = true;
+        setVolume(e);
+      });
+
+      document.addEventListener('mouseup', () => {
+        isProgressDragging = false;
+        isVolumeDragging = false;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isProgressDragging) {
+          setProgress.call(progressContainer, e);
+        }
+        if (isVolumeDragging) {
+          setVolume.call(volumeContainer, e);
+        }
+      });
+
+      progressContainer.addEventListener('click', (e) => {
+        if (!isProgressDragging) {
+          setProgress(e);
+        }
+      });
+
+      volumeContainer.addEventListener('click', (e) => {
+        if (!isVolumeDragging) {
+          setVolume(e);
+        }
+      });
+
+      volumeIcon.addEventListener('click', toggleMute);
+
+      // Initialize with first track
+      loadTrack(currentTrack);
+      audioPlayer.volume = 0.7;
+      volumeBar.style.width = '70%';
+      updateVolumeIcon(0.7);
+      
+      // Sakura petals animation
+      function createSakuraPetal() {
+        const petal = document.createElement('div');
+        petal.className = 'sakura-petal';
+        
+        // Random parameters
+        const size = Math.random() * 25 + 10;
+        const duration = Math.random() * 10 + 5;
+        const delay = Math.random() * 5;
+        const swayX = (Math.random() - 0.5) * 200;
+        const color = `hsl(${Math.random() * 10 + 330}, ${Math.random() * 30 + 70}%, ${Math.random() * 20 + 70}%)`;
+        
+        // SVG sakura petal shape
+        petal.innerHTML = `
+          <svg width="${size}" height="${size}" viewBox="0 0 100 100">
+            <path d="M50 15 
+                     C70 25, 85 40, 50 85 
+                     C15 40, 30 25, 50 15" 
+                  fill="${color}"/>
+          </svg>
+        `;
+        
+        // Positioning
+        petal.style.left = `${Math.random() * 100}vw`;
+        petal.style.top = `-${size}px`;
+        petal.style.setProperty('--sway', `${swayX}px`);
+        
+        // Animation
+        petal.style.animation = `fall ${duration}s ${delay}s linear infinite`;
+        
+        document.getElementById('sakura-container').appendChild(petal);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+          petal.remove();
+        }, (duration + delay) * 1000);
+      }
+
+      // Create new petals every 300ms
+      setInterval(createSakuraPetal, 300);
+      
+      // Initial fill
+      for (let i = 0; i < 20; i++) {
+        setTimeout(createSakuraPetal, i * 150);
+      }
+      
+      // 3D effect for main box
+      const box = document.getElementById('main-box');
+      
+      box.addEventListener('mousemove', (e) => {
+        const { left, top, width, height } = box.getBoundingClientRect();
+        const centerX = left + width / 2;
+        const centerY = top + height / 2;
+        const mouseX = e.clientX - centerX;
+        const mouseY = e.clientY - centerY;
+        
+        // Calculate relative cursor position (-1 to 1)
+        const rotateY = (mouseX / (width / 2)) * 8; // 8 - max angle
+        const rotateX = -(mouseY / (height / 2)) * 8;
+        
+        // Add shadow for depth effect
+        const shadowX = -rotateY * 2;
+        const shadowY = rotateX * 2;
+        const shadowBlur = Math.abs(rotateY) + Math.abs(rotateX) + 10;
+        
+        box.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+        box.style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)`;
+      });
+      
+      box.addEventListener('mouseleave', () => {
+        box.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        box.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.3)';
+      });
+    });
+  </script>
+</body>
+</html>
